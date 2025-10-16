@@ -74,7 +74,7 @@
             display: flex;
             flex-direction: column;
             border-radius: 0; /* Menghilangkan sudut melengkung */
-            overflow: hidden; 
+            overflow: hidden; /* Mencegah scroll di kontainer utama */
             padding: 0; /* Menghilangkan padding kontainer utama */
             position: relative; 
             margin: 0;
@@ -922,10 +922,10 @@
             const headerTextStyle = "header-font text-[0.65rem] sm:text-xs uppercase"; // Sangat kecil untuk mobile
 
             return `
-                <!-- PENYESUAIAN: padding utama dikurangi (p-1 sm:p-2) -->
+                <!-- Main Wrapper: flex-grow flex flex-col h-full w-full -->
                 <div class="flex-grow flex flex-col h-full w-full p-1 sm:p-2 max-w-5xl mx-auto">
                     
-                    <!-- HEADER BARU: MENGGUNAKAN GRID 3 KOLOM UNTUK CENTERING JAM -->
+                    <!-- 1. HEADER (Fixed position - flex-shrink-0) -->
                     <div class="grid grid-cols-3 items-start bg-gray-900/40 p-1 sm:p-2 rounded-lg border border-primary-color/30 mb-2 sm:mb-3 flex-shrink-0">
                         
                         <!-- KOLOM 1 (KIRI): USERNAME & ID ROOM (ALIGNED) -->
@@ -961,31 +961,27 @@
                         </div>
                     </div>
 
-                    <!-- Notifikasi Error/Status (Jika ada) -->
+                    <!-- Notifikasi Error/Status (Fixed position - flex-shrink-0) -->
                     ${state.error ? `<div class="bg-yellow-900 p-2 text-yellow-300 mb-2 border-yellow-700 border text-center text-xs sm:text-sm rounded-md flex-shrink-0">${state.error}</div>` : ''}
 
-                    <!-- 2. SCROLLABLE MIDDLE SECTION -->
-                    <div class="flex flex-grow space-x-2 min-h-0">
+                    <!-- 2. SCROLLABLE CHAT LOG CONTAINER (flex-grow) -->
+                    <div class="w-full flex flex-col flex-grow min-h-0 
+                                p-1 sm:p-2 rounded-lg bg-gray-900/40 border border-[var(--primary-color)]/20 my-1 sm:my-2">
                         
-                        <!-- KOLOM UTAMA: CHAT LOG WRAPPER -->
-                        <div class="w-full flex flex-col h-full min-h-0 
-                                    p-1 sm:p-2 rounded-lg bg-gray-900/40 border border-[var(--primary-color)]/20">
-                            
-                            <!-- PENYESUAIAN: Ukuran Judul Chat Log Dikurangi (text-sm sm:text-base) -->
-                            <h3 class="text-sm sm:text-base text-blue-400 mb-2 font-semibold glow-text text-center flex-shrink-0 border-b border-[var(--primary-color)]/30 pb-1">
-                                STATUS : TERMINAL TERENKRIPSI
-                            </h3>
-                            
-                            <!-- CHAT LOG -->
-                            <div id="chat-log" class="flex-grow overflow-y-auto chat-log-container p-0 sm:p-1 scrollbar-futuristic"> 
-                                <div class="text-gray-500 text-center mt-6 text-sm sm:text-base">
-                                    ${messagesHtml.length > 0 ? messagesHtml : '*** KONEKSI TERENKRIPSI. MENUNGGU PESAN... ***'}
-                                </div>
+                        <!-- Judul Chat Log (Fixed position inside this container - flex-shrink-0) -->
+                        <h3 class="text-sm sm:text-base text-blue-400 mb-2 font-semibold glow-text text-center flex-shrink-0 border-b border-[var(--primary-color)]/30 pb-1">
+                            STATUS : TERMINAL TERENKRIPSI
+                        </h3>
+                        
+                        <!-- CHAT LOG (Scrollable content - flex-grow overflow-y-auto) -->
+                        <div id="chat-log" class="flex-grow overflow-y-auto chat-log-container p-0 sm:p-1 scrollbar-futuristic"> 
+                            <div class="text-gray-500 text-center mt-6 text-sm sm:text-base">
+                                ${messagesHtml.length > 0 ? messagesHtml : '*** KONEKSI TERENKRIPSI. MENUNGGU PESAN... ***'}
                             </div>
                         </div>
                     </div>
 
-                    <!-- 3. FOOTER (INPUT) -->
+                    <!-- 3. FOOTER (INPUT) (Fixed position - flex-shrink-0) -->
                     <div class="flex flex-col mt-2 flex-shrink-0">
                         <div class="flex space-x-1">
                             <input type="text" id="message-input" class="input-terminal flex-grow" placeholder="KETIK PESAN DI SINI..." onkeydown="if(event.key === 'Enter') handleSendMessage()" ${state.isLoggingOut ? 'disabled' : ''}>
