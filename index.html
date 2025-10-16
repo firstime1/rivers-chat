@@ -256,6 +256,11 @@
         const ROOMS_COLLECTION_NAME = 'hacker_chat_rooms'; 
         const BOT_NAME = 'machine bot'; 
         
+        // --- NOTIFICATION STATE ---
+        let unreadCount = 0;
+        const originalTitle = document.title;
+        let audioContext = null; // <-- VARIABEL AUDIO CONTEXT BARU
+        
         // --- DAFTAR EMOJI STANDAR (DIPERBARUI) ---
         const EMOJIS = [
             '😀', '😂', '🥲', '😍', '😎', '🥳', '🤯', '🤔', '🤫', '😇', 
@@ -358,6 +363,96 @@
             const doc = document.documentElement;
             const newHeight = `${window.innerHeight}px`;
             doc.style.setProperty('--app-height', newHeight);
+        };
+
+        /** Mengatur notifikasi judul tab */
+        const updateTitleNotification = () => {
+            if (unreadCount > 0) {
+                document.title = `(${unreadCount}) PEMBERITAHUAN! | ${originalTitle}`;
+            } else {
+                document.title = originalTitle;
+            }
+        };
+
+        /** Membersihkan notifikasi saat pengguna fokus pada tab */
+        const clearNotifications = () => {
+            unreadCount = 0;
+            updateTitleNotification();
+        };
+
+        /** Meminta izin notifikasi browser */
+        const requestNotificationPermission = () => {
+            if (!("Notification" in window)) {
+                console.warn("Browser tidak mendukung notifikasi.");
+            } else if (Notification.permission === "default") {
+                // Meminta izin dari pengguna
+                Notification.requestPermission().then(permission => {
+                    console.log("Izin Notifikasi:", permission);
+                });
+            }
+        };
+
+        /** Fungsi internal untuk menghasilkan gelombang suara */
+        const _generateSound = (context) => {
+            const oscillator = context.createOscillator();
+            const gainNode = context.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(context.destination);
+
+            // Set tone properties (short beep)
+            oscillator.type = 'sine'; 
+            oscillator.frequency.setValueAtTime(880, context.currentTime); // Nada tinggi
+            
+            // Attack dan Decay cepat untuk efek 'klik' notifikasi
+            const duration = 0.2; // 200ms
+            gainNode.gain.setValueAtTime(0, context.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, context.currentTime + 0.01); // Quick attack
+            gainNode.gain.linearRampToValueAtTime(0, context.currentTime + duration); // Quick decay
+
+            oscillator.start();
+            oscillator.stop(context.currentTime + duration);
+        }
+
+        /** Fungsi untuk menginisialisasi AudioContext pada interaksi pengguna pertama. */
+        const initializeAudioContext = () => {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log("[AUDIO] AudioContext initialized.");
+                } catch (e) {
+                    console.error("[AUDIO] Failed to initialize AudioContext.", e);
+                }
+            }
+            // Pastikan konteks berjalan (resume) jika ditangguhkan
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log("[AUDIO] AudioContext resumed successfully.");
+                }).catch(e => {
+                    console.warn("[AUDIO] Failed to resume AudioContext.", e);
+                });
+            }
+        };
+
+
+        /** Memainkan suara notifikasi sederhana menggunakan Web Audio API */
+        const playNotificationSound = () => {
+            if (!audioContext) {
+                console.warn("[AUDIO] Cannot play sound, AudioContext not initialized.");
+                return;
+            }
+            
+            // Coba resume context sebelum memutar suara, ini adalah perbaikan krusial
+            if (audioContext.state === 'suspended') {
+                 audioContext.resume().then(() => {
+                    console.log("[AUDIO] AudioContext auto-resumed for playback.");
+                    _generateSound(audioContext);
+                 }).catch(e => {
+                     console.warn("[AUDIO] Failed to resume context for sound playback. Mungkin diblokir oleh browser.", e);
+                 });
+            } else {
+                 _generateSound(audioContext);
+            }
         };
 
 
@@ -494,6 +589,9 @@
             if (state.roomId && state.currentView === 'chat') {
                 startChatListener(state.roomId);
             }
+
+            // Panggil permintaan notifikasi setelah inisialisasi berhasil
+            requestNotificationPermission();
             
             console.log(`[FIREBASE READY] User ID: ${userId}, App ID: ${appId}`);
         };
@@ -576,6 +674,38 @@
                     if (data.messageType === 'room_closed' && change.type === 'added') {
                         shouldCloseRoom = true;
                     }
+
+                    // --- LOGIKA NOTIFIKASI TAMBAHAN UNTUK PESAN BARU ---
+                    if (change.type === 'added') {
+                        // 1. Pastikan itu adalah pesan chat dan bukan dari diri sendiri
+                        const isNewChatMessage = data.messageType === 'chat';
+                        const isNotFromSelf = data.userId !== userId;
+
+                        if (isNewChatMessage && isNotFromSelf) {
+                            const isWindowHidden = document.hidden;
+                            
+                            // 1. Notifikasi Judul Tab (Title)
+                            if (isWindowHidden) {
+                                unreadCount++;
+                                updateTitleNotification();
+                            }
+                            
+                            // 2. Notifikasi Pop-up Browser
+                            if (isWindowHidden && Notification.permission === "granted") {
+                                new Notification(`Pesan Baru dari ${data.sender}`, {
+                                    body: data.text ? data.text.substring(0, 50) + '...' : 'Pesan baru diterima.',
+                                    // Menggunakan placeholder image yang sesuai dengan tema
+                                    icon: 'https://placehold.co/64x64/000/00BFFF?text=271'
+                                });
+                            }
+
+                            // 3. Notifikasi Suara (Hanya jika jendela tersembunyi/tidak fokus)
+                            if (isWindowHidden) {
+                                playNotificationSound();
+                            }
+                        }
+                    }
+                    // --- END LOGIKA NOTIFIKASI TAMBAHAN ---
                 });
 
                 if (shouldCloseRoom) {
@@ -681,13 +811,6 @@
             }
         };
         
-        /** Handler untuk memproses pemilihan file (Dihapus)
-        const handleFileSelection = async (e) => {
-             // Fungsionalitas Dihapus Sesuai Permintaan
-        };
-        */
-
-
         // --- View Handlers ---
         
         const handleGoToFacebookLogin = () => {
@@ -712,6 +835,9 @@
 
             const chatUsername = `(FB)${facebookUser.split('@')[0].toUpperCase()}`;
             const roomId = inviteId;
+
+            // PERBAIKAN AUDIO KRUSIAL: Inisialisasi AudioContext saat ada interaksi user
+            initializeAudioContext();
 
             updateState({
                 username: chatUsername,
@@ -738,6 +864,9 @@
 
             if (!username) return logError("Nama Pengguna (Guest) tidak boleh kosong.");
             if (!roomIDRegex.test(inviteId)) return logError("ID Ruangan tidak valid. Harus 8 karakter alfanumerik huruf besar.");
+
+            // PERBAIKAN AUDIO KRUSIAL: Inisialisasi AudioContext saat ada interaksi user
+            initializeAudioContext();
 
             updateState({
                 username: username,
@@ -1185,6 +1314,14 @@
             setAppHeight(); 
             setupFirebase(); 
         });
+        
+        // PENTING: Clear notifications when the tab is focused
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                clearNotifications();
+            }
+        });
+
         setAppHeight(); 
 
         render();
