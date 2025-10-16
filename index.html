@@ -187,9 +187,31 @@
             text-align: center;
         }
 
+        /* File Message Styling */
+        /* Hapus styling file message karena fungsionalitas dihapus */
+        
         /* Timestamp Styling */
         .message-timestamp {
             font-size: 0.7em; /* Dikurangi dari 0.8em */
+        }
+        
+        /* New CSS for Emoji Picker */
+        .emoji-picker-container {
+            /* Adjust background for a more glassy/terminal popover */
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--secondary-color);
+            box-shadow: 0 0 10px var(--secondary-color);
+        }
+        .emoji-item {
+            /* Make the emoji buttons dark on hover */
+            background: transparent;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+        .emoji-item:hover {
+            background-color: rgba(51, 255, 204, 0.1); /* light greenish hover effect */
         }
     </style>
 </head>
@@ -231,9 +253,17 @@
         
         // --- CONSTANTS ---
         const MESSAGES_COLLECTION_NAME = 'messages';
-        // Reverted: Menggunakan nama koleksi asli ('hacker_chat_rooms')
         const ROOMS_COLLECTION_NAME = 'hacker_chat_rooms'; 
         const BOT_NAME = 'machine bot'; 
+        
+        // --- DAFTAR EMOJI STANDAR (DIPERBARUI) ---
+        const EMOJIS = [
+            '😀', '😂', '🥲', '😍', '😎', '🥳', '🤯', '🤔', '🤫', '😇', 
+            '😭', '😡', '😱', '🥶', '👍', '👎', '🔥', '⭐', '🚀', '💡', 
+            '💻', '💰', '🔑', '📞', '📧', '✏️', '📖', '📊', '📌', '🔗', 
+            '🔒', '⚙️', '💬', '🔔', '🎤', '🎧', '🎸', '🎨', '⚽', '🏀', 
+            '🍔', '🍕', '☕', '🍷', '🎉', '✅', '❌', '💔', '🌙', '☀️'
+        ];
         
         // --- VALIDASI REGEX TAMBAHAN ---
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -287,7 +317,6 @@
 
         const loadStateFromLocalStorage = () => {
             try {
-                // Reverted: Menggunakan kunci local storage asli ('hackerChatState')
                 const persisted = localStorage.getItem('hackerChatState');
                 if (persisted) {
                     const loadedState = JSON.parse(persisted);
@@ -302,7 +331,6 @@
                 }
             } catch (e) {
                 console.error("Error loading state from localStorage", e);
-                // Reverted: Menggunakan kunci local storage asli ('hackerChatState')
                 localStorage.removeItem('hackerChatState'); 
             }
         };
@@ -315,10 +343,8 @@
                 currentView: state.currentView,
             };
             if(state.roomId) {
-                // Reverted: Menggunakan kunci local storage asli ('hackerChatState')
                 localStorage.setItem('hackerChatState', JSON.stringify(persistState));
             } else {
-                // Reverted: Menggunakan kunci local storage asli ('hackerChatState')
                 localStorage.removeItem('hackerChatState');
             }
         };
@@ -337,7 +363,6 @@
 
         /** Logs an error message to the console and updates app state. */
         const logError = (msg, err = null) => {
-            // Reverted: Menggunakan label log asli ('HACKER CHAT ERROR')
             console.error(`[HACKER CHAT ERROR] ${msg}`, err);
              const uiMsg = `${msg} | CEK CONSOLE BROWSER untuk kode kesalahan.`;
              setNotification(uiMsg, 7000); 
@@ -354,7 +379,6 @@
         
         /** Displays a temporary status message (not a critical error) on the UI. */
         const setNotification = (msg, duration = 5000) => {
-            // Reverted: Menggunakan label log asli ('HACKER CHAT STATUS')
             console.log(`[HACKER CHAT STATUS] ${msg}`); 
             updateState({ error: msg }); 
 
@@ -484,16 +508,23 @@
             return collection(db, roomDocPath, MESSAGES_COLLECTION_NAME);
         };
 
-        const sendMessage = async (messageText, messageType = 'chat') => {
+        const sendMessage = async (messageText, messageType = 'chat', fileDetails = null) => {
             if (!state.isFirebaseReady) return logError("Koneksi belum siap. Tunggu hingga status FIREBASE READY.");
-            if (!db || !state.roomId || !state.username || (!messageText.trim() && messageType === 'chat')) return;
+            
+            // Logika untuk pesan teks (hanya jika type=chat)
+            if (messageType === 'chat' && !messageText.trim()) return;
+
+            // Logika untuk pesan file (TIDAK DIGUNAKAN LAGI)
+            // if (messageType === 'file' && !fileDetails) return;
 
             const message = {
                 sender: state.username,
-                text: messageText,
                 timestamp: serverTimestamp(),
                 userId: userId, // CRITICAL: Ensure local userId is saved
-                messageType: messageType 
+                messageType: messageType, 
+                
+                // Hapus logika file
+                text: messageText,
             };
 
             try {
@@ -611,11 +642,52 @@
                     username: state.username,
                     isLoggingOut: false 
                 });
-                // Reverted: Menggunakan kunci local storage asli ('hackerChatState')
                 localStorage.removeItem('hackerChatState');
             }, 100); 
         }
         
+        // --- Input Feature Handlers (Updated for Emoji Picker) ---
+
+        /** Handler untuk menampilkan/menyembunyikan emoji picker */
+        const handleEmojiClick = () => {
+            const picker = document.getElementById('emoji-picker');
+            if (picker) {
+                picker.classList.toggle('hidden');
+            }
+        };
+        
+        /** Handler untuk memilih emoji dan memasukkannya ke input */
+        const selectEmoji = (emoji) => {
+            const input = document.getElementById('message-input');
+            if (input) {
+                // Insert emoji at cursor position
+                const start = input.selectionStart;
+                const end = input.selectionEnd;
+                const value = input.value;
+                
+                // Add a space before inserting if the input is not empty
+                const prefix = (start > 0 && value[start - 1] !== ' ') ? ' ' : '';
+                
+                input.value = value.substring(0, start) + prefix + emoji + value.substring(end);
+                
+                // Set cursor position after the inserted emoji
+                input.selectionStart = input.selectionEnd = start + prefix.length + emoji.length;
+                input.focus();
+            }
+            // Hide the picker after selection
+            const picker = document.getElementById('emoji-picker');
+            if (picker) {
+                picker.classList.add('hidden');
+            }
+        };
+        
+        /** Handler untuk memproses pemilihan file (Dihapus)
+        const handleFileSelection = async (e) => {
+             // Fungsionalitas Dihapus Sesuai Permintaan
+        };
+        */
+
+
         // --- View Handlers ---
         
         const handleGoToFacebookLogin = () => {
@@ -690,6 +762,11 @@
                 input.value = ''; 
                 input.focus(); 
             }
+            // Ensure picker is closed after sending
+            const picker = document.getElementById('emoji-picker');
+            if (picker && !picker.classList.contains('hidden')) {
+                picker.classList.add('hidden');
+            }
         };
         
         /** Main logout handler. */
@@ -714,7 +791,6 @@
                 username: '',
                 isLoggingOut: false 
             });
-            // Reverted: Menggunakan kunci local storage asli ('hackerChatState')
             localStorage.removeItem('hackerChatState');
 
         };
@@ -734,6 +810,9 @@
 
         // --- Rendering Logic (HTML Templates) ---
         
+        // Expose selectEmoji globally
+        window.selectEmoji = selectEmoji; 
+
         const renderFacebookLoginView = () => `
             <!-- PENYESUAIAN: padding utama dikurangi (p-2 sm:p-4) -->
             <div class="flex flex-col h-full items-center justify-center p-2 sm:p-4 max-w-5xl mx-auto">
@@ -863,13 +942,11 @@
                     senderColorStyle = 'style="color: #00FF00; text-shadow: 0 0 5px #00FF0030;"'; // Glow lebih lembut
                     messageExtraClass = 'chat-message-self'; 
                 } else if (isBot) { 
-                    // KASUS 2: BOT SISTEM (PERUBAHAN UTAMA DI SINI)
+                    // KASUS 2: BOT SISTEM
                     positionClass = 'justify-center'; // PENTING: Rata tengah
-                    // Mengambil nama bot dari data, yang kini sudah lowercase
                     senderName = msg.sender; 
-                    // Warna abu-abu lembut untuk pesan sistem
                     senderColorStyle = 'style="color: #A0A0A0; text-shadow: none;"'; 
-                    messageExtraClass = 'bot-message-style'; // Menambahkan kelas CSS baru
+                    messageExtraClass = 'bot-message-style'; 
                 } else {
                     // KASUS 3: PENGGUNA LAIN
                     positionClass = 'justify-start';
@@ -879,33 +956,49 @@
                     senderColorStyle = `style="color: ${colorHex}; text-shadow: 0 0 3px ${colorHex}30;"`; // Glow lebih lembut
                 }
                 
-                // PERUBAHAN 1 (Pesan Sebelumnya): Menghilangkan tanda kurung siku [] dari nama pengirim (non-bot)
-                // KASUS INI HANYA MEMPERKECIL FONT NAMA PENGIRIM
-                const messageContent = isBot ? 
-                    `<span class="text-gray-400 font-light">${msg.text}</span>` : 
-                    `<!-- Nama Pengirim Dihapus jika Bot -->
-                       <span class="font-bold mr-1 text-[0.8rem] sm:text-sm" ${senderColorStyle}>${isBot ? '' : senderName + ':'}</span> 
-                       <span class="text-white">${msg.text}</span>`;
+                let messageContent = '';
+                let messageBody = '';
                 
-                // Jika bot, kita perlu menghilangkan nama pengirim ([SENDER]:) 
-                const messageBody = isBot ? 
-                    `
-                    <div class="flex flex-col w-full text-center">
-                        <div class="text-sm sm:text-base ${messageExtraClass}">
-                            ${messageContent}
+                // --- PENANGANAN PESAN BERKAS (FILE) - DIHAPUS/DISIMPLIFIKASI ---
+                if (msg.messageType === 'file' && msg.fileName) {
+                     // Karena fungsionalitas kirim file dihapus, kita akan menampilkan pesan ini sebagai teks biasa atau log
+                     messageContent = `<span class="text-yellow-500 italic">[LOG FILE - Fungsionalitas Dihapus] ${msg.fileName}</span>`;
+                     messageBody = `
+                        <div class="flex flex-col w-full text-center">
+                            <div class="text-sm sm:text-base bot-message-style">
+                                ${messageContent}
+                            </div>
                         </div>
-                    </div>
-                    ` : 
-                    `
-                    <div class="flex flex-col max-w-[90%] sm:max-w-[75%]">
-                        <div class="chat-message ${messageExtraClass}">
-                            ${messageContent}
+                     `;
+                } 
+                // --- PENANGANAN PESAN CHAT BIASA (TERMASUK BOT) ---
+                else {
+                    const senderText = isBot ? '' : `<span class="font-bold mr-1 text-[0.8rem] sm:text-sm" ${senderColorStyle}>${senderName + ':'}</span>`;
+                    
+                    messageContent = isBot ? 
+                        `<span class="text-gray-400 font-light">${msg.text}</span>` : 
+                        `${senderText} <span class="text-white">${msg.text}</span>`;
+                    
+                    messageBody = isBot ? 
+                        `
+                        <div class="flex flex-col w-full text-center">
+                            <div class="text-sm sm:text-base ${messageExtraClass}">
+                                ${messageContent}
+                            </div>
                         </div>
-                        <span class="text-gray-500 message-timestamp mt-0.5 ${isCurrentUser ? 'self-end' : 'self-start'}">
-                            ${timeStamp}
-                        </span>
-                    </div>
-                    `;
+                        ` : 
+                        `
+                        <div class="flex flex-col max-w-[90%] sm:max-w-[75%]">
+                            <div class="chat-message ${messageExtraClass}">
+                                ${messageContent}
+                            </div>
+                            <span class="text-gray-500 message-timestamp mt-0.5 ${isCurrentUser ? 'self-end' : 'self-start'}">
+                                ${timeStamp}
+                            </span>
+                        </div>
+                        `;
+                }
+
 
                 return `
                     <div class="message-container ${positionClass}">
@@ -920,6 +1013,21 @@
             const colonStyle = "w-1 text-blue-300 font-bold mr-1 flex-shrink-0"; 
             const valueStyle = "truncate text-blue-300 font-bold";
             const headerTextStyle = "header-font text-[0.65rem] sm:text-xs uppercase"; // Sangat kecil untuk mobile
+
+            // --- STRUKTUR EMOJI PICKER BARU ---
+            const emojiPickerHtml = `
+                <div id="emoji-picker" class="absolute bottom-[100%] left-0 w-64 p-2 rounded-lg shadow-2xl z-20 hidden emoji-picker-container transition-all mb-1">
+                    <div class="grid grid-cols-6 gap-1.5">
+                        ${EMOJIS.map(emoji => `
+                            <button class="emoji-item text-xl hover:bg-gray-700/50 p-1 rounded-sm transition-colors"
+                                    onclick="selectEmoji('${emoji}')">
+                                ${emoji}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
 
             return `
                 <!-- Main Wrapper: flex-grow flex flex-col h-full w-full -->
@@ -982,8 +1090,23 @@
                     </div>
 
                     <!-- 3. FOOTER (INPUT) (Fixed position - flex-shrink-0) -->
-                    <div class="flex flex-col mt-2 flex-shrink-0">
-                        <div class="flex space-x-1">
+                    <div class="flex flex-col mt-2 flex-shrink-0 relative"> <!-- PENTING: RELATIVE untuk popover emoji -->
+                        
+                        ${emojiPickerHtml} <!-- Popover Emoji di sini -->
+
+                        <div class="flex space-x-1 items-center">
+                            
+                            <!-- Tombol Emoji (Yellow, sekarang untuk toggle picker) -->
+                            <button id="emoji-button" title="Pilih Emoji Standar"
+                                    class="terminal-button text-xl sm:text-2xl p-1 sm:p-2 bg-yellow-600 hover:bg-yellow-700 shadow-yellow-500/50" 
+                                    onclick="handleEmojiClick()" ${state.isLoggingOut ? 'disabled' : ''}>
+                                &#x1F600; <!-- Emoji senyum standar -->
+                            </button>
+                            
+                            <!-- Hapus Input File Tersembunyi -->
+
+                            <!-- Hapus Tombol Upload File -->
+                            
                             <input type="text" id="message-input" class="input-terminal flex-grow" placeholder="KETIK PESAN DI SINI..." onkeydown="if(event.key === 'Enter') handleSendMessage()" ${state.isLoggingOut ? 'disabled' : ''}>
                             <button class="terminal-button text-sm sm:text-base flex-shrink-0" onclick="handleSendMessage()" ${state.isLoggingOut ? 'disabled' : ''}>
                                 KIRIM &gt;
@@ -1006,6 +1129,8 @@
         window.forceLogout = forceLogout;
         window.handleGoToFacebookLogin = handleGoToFacebookLogin;
         window.handleFacebookLogin = handleFacebookLogin;
+        window.handleEmojiClick = handleEmojiClick; 
+        window.selectEmoji = selectEmoji; 
         
         const render = () => {
             const appDiv = document.getElementById('app');
@@ -1020,6 +1145,8 @@
                     updateClock(); 
                     clockInterval = setInterval(updateClock, 1000);
 
+                    // Hapus pemanggilan setupFileListener
+                    
                     setTimeout(scrollToBottom, 50); 
                     
                     setTimeout(() => {
@@ -1050,6 +1177,7 @@
             appDiv.innerHTML = content;
         };
 
+        // Hapus function setupFileListener
 
         // Initialize Firebase when the window loads
         window.addEventListener('resize', setAppHeight);
