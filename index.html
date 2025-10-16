@@ -231,8 +231,7 @@
         
         // --- CONSTANTS ---
         const MESSAGES_COLLECTION_NAME = 'messages';
-        // Diubah: 'hacker_chat_rooms' menjadi 'chat_271_rooms'
-        const ROOMS_COLLECTION_NAME = 'chat_271_rooms'; 
+        const ROOMS_COLLECTION_NAME = 'hacker_chat_rooms';
         const BOT_NAME = 'machine bot'; 
         
         // --- VALIDASI REGEX TAMBAHAN ---
@@ -287,8 +286,7 @@
 
         const loadStateFromLocalStorage = () => {
             try {
-                // Diubah: 'hackerChatState' menjadi 'chat271State'
-                const persisted = localStorage.getItem('chat271State');
+                const persisted = localStorage.getItem('hackerChatState');
                 if (persisted) {
                     const loadedState = JSON.parse(persisted);
                     
@@ -302,8 +300,7 @@
                 }
             } catch (e) {
                 console.error("Error loading state from localStorage", e);
-                // Diubah: 'hackerChatState' menjadi 'chat271State'
-                localStorage.removeItem('chat271State'); 
+                localStorage.removeItem('hackerChatState'); 
             }
         };
 
@@ -315,11 +312,9 @@
                 currentView: state.currentView,
             };
             if(state.roomId) {
-                // Diubah: 'hackerChatState' menjadi 'chat271State'
-                localStorage.setItem('chat271State', JSON.stringify(persistState));
+                localStorage.setItem('hackerChatState', JSON.stringify(persistState));
             } else {
-                // Diubah: 'hackerChatState' menjadi 'chat271State'
-                localStorage.removeItem('chat271State');
+                localStorage.removeItem('hackerChatState');
             }
         };
 
@@ -337,8 +332,7 @@
 
         /** Logs an error message to the console and updates app state. */
         const logError = (msg, err = null) => {
-            // Diubah: 'HACKER CHAT ERROR' menjadi '271 CHAT ERROR'
-            console.error(`[271 CHAT ERROR] ${msg}`, err);
+            console.error(`[HACKER CHAT ERROR] ${msg}`, err);
              const uiMsg = `${msg} | CEK CONSOLE BROWSER untuk kode kesalahan.`;
              setNotification(uiMsg, 7000); 
              if (err) console.error(err);
@@ -354,8 +348,7 @@
         
         /** Displays a temporary status message (not a critical error) on the UI. */
         const setNotification = (msg, duration = 5000) => {
-            // Diubah: 'HACKER CHAT STATUS' menjadi '271 CHAT STATUS'
-            console.log(`[271 CHAT STATUS] ${msg}`); 
+            console.log(`[HACKER CHAT STATUS] ${msg}`); 
             updateState({ error: msg }); 
 
             setTimeout(() => {
@@ -611,8 +604,7 @@
                     username: state.username,
                     isLoggingOut: false 
                 });
-                // Diubah: 'hackerChatState' menjadi 'chat271State'
-                localStorage.removeItem('chat271State');
+                localStorage.removeItem('hackerChatState');
             }, 100); 
         }
         
@@ -714,8 +706,7 @@
                 username: '',
                 isLoggingOut: false 
             });
-            // Diubah: 'hackerChatState' menjadi 'chat271State'
-            localStorage.removeItem('chat271State');
+            localStorage.removeItem('hackerChatState');
 
         };
 
