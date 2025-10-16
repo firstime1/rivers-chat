@@ -26,13 +26,13 @@
         /* Override Tailwind defaults untuk konsistensi */
         :root, body {
             font-family: 'Inter', sans-serif; 
-            font-size: 16px; 
+            font-size: 16px; /* Font Base Tetap 16px */
         }
         
-        /* KRITIKAL MOBILE FIX: Font sedikit lebih besar di HP */
+        /* KRITIKAL MOBILE FIX: Font diset ke 16px untuk menghemat ruang vertikal */
         @media (max-width: 640px) {
             :root, body {
-                font-size: 17px; 
+                font-size: 16px; 
             }
         }
         
@@ -82,7 +82,7 @@
 
         /* Scrollbar styling */
         .scrollbar-futuristic::-webkit-scrollbar {
-            width: 8px;
+            width: 6px; /* Lebih ramping */
         }
 
         .scrollbar-futuristic::-webkit-scrollbar-track {
@@ -91,7 +91,7 @@
 
         .scrollbar-futuristic::-webkit-scrollbar-thumb {
             background-color: rgba(0, 191, 255, 0.4);
-            border-radius: 4px;
+            border-radius: 3px;
         }
 
         .scrollbar-futuristic::-webkit-scrollbar-thumb:hover {
@@ -104,11 +104,11 @@
             background-color: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--primary-color);
             color: var(--primary-color);
-            padding: 10px 14px; /* Disesuaikan */
-            border-radius: 6px; /* Disesuaikan */
+            padding: 8px 12px; /* Dikurangi lagi dari 10px 14px */
+            border-radius: 4px; /* Lebih kecil */
             transition: box-shadow 0.2s;
             opacity: 0.9;
-            font-size: 1.1em; /* Disesuaikan (Sedikit lebih kecil dari sebelumnya) */
+            font-size: 1.0em; /* Dikurangi dari 1.1em */
         }
 
         .input-terminal:focus {
@@ -120,13 +120,13 @@
             background-color: var(--primary-color);
             color: var(--bg-color);
             font-weight: 700; 
-            padding: 10px 14px; /* Disesuaikan */
+            padding: 8px 12px; /* Dikurangi lagi dari 10px 14px */
             border: none;
             transition: background-color 0.2s, box-shadow 0.2s;
             cursor: pointer;
             box-shadow: 0 0 5px rgba(0, 191, 255, 0.7);
-            font-size: 1.2em; /* Disesuaikan (Sedikit lebih kecil dari sebelumnya) */
-            border-radius: 6px; /* Disesuaikan */
+            font-size: 1.1em; /* Dikurangi dari 1.2em */
+            border-radius: 4px; /* Lebih kecil */
         }
         
         .fb-button {
@@ -149,18 +149,18 @@
         }
 
         /* Style untuk Chat Log (Disesuaikan) */
-        .chat-log-container { border: none; padding: 5px; margin-bottom: 5px; background-color: transparent; }
+        .chat-log-container { border: none; padding: 2px; margin-bottom: 2px; background-color: transparent; } /* Padding dikurangi */
         .log-divider { border-top: 1px dashed rgba(255, 255, 255, 0.1); margin: 5px 0; }
-        .message-container { display: flex; width: 100%; margin-bottom: 10px; } /* Jarak antar pesan sedikit dikurangi */
+        .message-container { display: flex; width: 100%; margin-bottom: 6px; } /* Jarak antar pesan dikurangi */
         
         /* Message Styling */
         .chat-message {
-            padding: 8px 10px; /* Disesuaikan (lebih kecil) */
-            border-radius: 6px; /* Disesuaikan */
+            padding: 6px 8px; /* Dikurangi dari 8px 10px */
+            border-radius: 4px; /* Lebih kecil */
             word-wrap: break-word;
             background-color: rgba(255, 255, 255, 0.03); /* Latar belakang lebih transparan */
-            font-size: 1.1em; /* Font Chat Log Disesuaikan (lebih kecil) */
-            line-height: 1.5; 
+            font-size: 1.0em; /* Dikurangi dari 1.1em */
+            line-height: 1.4; /* Line height lebih rapat */
             border: 1px solid var(--message-border-color); 
             box-shadow: 0 0 2px var(--message-shadow-color); /* Shadow lebih lembut */
             transition: all 0.2s ease-in-out; 
@@ -189,7 +189,7 @@
 
         /* Timestamp Styling */
         .message-timestamp {
-            font-size: 0.8em; /* Font lebih kecil */
+            font-size: 0.7em; /* Dikurangi dari 0.8em */
         }
     </style>
 </head>
@@ -397,9 +397,9 @@
                 // HANYA WAKTU (jam, menit, detik)
                 const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 
-                // UKURAN FONT JAM DITURUNKAN DARI text-xl/text-2xl MENJADI text-lg/text-xl
+                // UKURAN FONT JAM DITURUNKAN KE MINIMUM
                 clockElement.innerHTML = `
-                    <span class="text-lg sm:text-xl font-bold" style="color: var(--secondary-color); text-shadow: 0 0 5px var(--secondary-color);">
+                    <span class="text-base sm:text-lg font-bold" style="color: var(--secondary-color); text-shadow: 0 0 5px var(--secondary-color);">
                         ${timeString}
                     </span> 
                 `;
@@ -735,41 +735,41 @@
         // --- Rendering Logic (HTML Templates) ---
         
         const renderFacebookLoginView = () => `
-            <!-- PENYESUAIAN: max-w-5xl mx-auto untuk membatasi lebar di desktop -->
-            <div class="flex flex-col h-full items-center justify-center p-4 max-w-5xl mx-auto">
+            <!-- PENYESUAIAN: padding utama dikurangi (p-2 sm:p-4) -->
+            <div class="flex flex-col h-full items-center justify-center p-2 sm:p-4 max-w-5xl mx-auto">
                 
-                ${state.error ? `<div class="bg-red-900 p-3 text-yellow-300 mb-6 border-red-700 border text-center text-lg rounded-md w-full max-w-sm sm:max-w-md">${state.error}</div>` : ''}
+                ${state.error ? `<div class="bg-red-900 p-2 text-yellow-300 mb-4 border-red-700 border text-center text-sm rounded-md w-full max-w-sm sm:max-w-md">${state.error}</div>` : ''}
 
                 <div class="w-full max-w-md"> 
-                    <!-- PENYESUAIAN: Ukuran Judul Dikurangi -->
-                    <h2 class="text-3xl sm:text-4xl mb-8 text-center border-b border-primary-color/50 pb-2 font-extrabold text-blue-400 glow-text">SYNC TO FB.SERVER</h2>
+                    <!-- PENYESUAIAN: Ukuran Judul Dikurangi (text-2xl sm:text-3xl) -->
+                    <h2 class="text-2xl sm:text-3xl mb-6 text-center border-b border-primary-color/50 pb-2 font-extrabold text-blue-400 glow-text">SYNC TO FB.SERVER</h2>
                     
-                    <p class="text-lg text-gray-400 mb-8 text-center">Masukkan akun facebook Anda dan ID ruangan untuk akses</p>
+                    <p class="text-sm sm:text-base text-gray-400 mb-6 text-center">Masukkan akun facebook Anda dan ID ruangan untuk akses</p>
 
-                    <div class="mb-4">
-                        <!-- PENYESUAIAN: Ukuran Label Dikurangi -->
-                        <label class="block mb-2 text-lg sm:text-xl text-white">User_name</label>
+                    <div class="mb-3">
+                        <!-- PENYESUAIAN: Ukuran Label Dikurangi (text-sm sm:text-base) -->
+                        <label class="block mb-1 text-sm sm:text-base text-white">User_name</label>
                         <input type="text" id="facebook-username" class="input-terminal w-full" placeholder="email@example.com atau 081xxxxxxxxx">
                     </div>
                     
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <!-- PENYESUAIAN: Ukuran Label Dikurangi -->
-                        <label class="block mb-2 text-lg sm:text-xl text-white">Password</label>
+                        <label class="block mb-1 text-sm sm:text-base text-white">Password</label>
                         <input type="password" id="facebook-password" class="input-terminal w-full" placeholder="Masukkan password anda">
                     </div>
                     
-                    <div class="mb-8">
+                    <div class="mb-6">
                         <!-- PENYESUAIAN: Ukuran Label Dikurangi -->
-                        <label class="block mb-2 text-lg sm:text-xl text-white">ID ROOM UNDANGAN:</label>
+                        <label class="block mb-1 text-sm sm:text-base text-white">ID ROOM UNDANGAN:</label>
                         <input type="text" id="facebook-invite-id" class="input-terminal w-full" placeholder="ID undangan Host (8 karakter)">
                     </div>
 
-                    <!-- PENYESUAIAN: Ukuran Tombol Dikurangi -->
-                    <button class="terminal-button fb-button w-full mt-auto py-3 text-lg sm:text-xl" onclick="handleFacebookLogin()">
+                    <!-- PENYESUAIAN: Ukuran Tombol Dikurangi (py-2 text-base sm:text-lg) -->
+                    <button class="terminal-button fb-button w-full mt-auto py-2 text-base sm:text-lg" onclick="handleFacebookLogin()">
                         &gt; [ LOG IN & JOIN ROOM ]
                     </button>
                     
-                    <button class="text-base mt-4 underline text-gray-500 hover:text-red-300 w-full" onclick="updateState({ currentView: 'main' })">
+                    <button class="text-xs mt-3 underline text-gray-500 hover:text-red-300 w-full" onclick="updateState({ currentView: 'main' })">
                         &lt; Kembali ke Halaman Utama
                     </button>
                 </div>
@@ -789,50 +789,50 @@
 
 
             return `
-                <!-- PENYESUAIAN: max-w-5xl mx-auto untuk membatasi lebar di desktop -->
-                <div class="flex flex-col h-full items-center justify-center p-4 max-w-5xl mx-auto">
-                    <!-- PENYESUAIAN: Ukuran Judul Dikurangi -->
-                    <h1 class="text-3xl sm:text-4xl mb-4 text-center glow-text font-bold text-white">SELAMAT DATANG DI RIVER'S CHAT</h1>
-                    <p class="text-lg sm:text-xl text-center text-gray-400 mb-8">Akses ruang obrolan anonim. Masukkan nama panggilan dan ID ruangan Anda.</p>
+                <!-- PENYESUAIAN: padding utama dikurangi (p-2 sm:p-4) -->
+                <div class="flex flex-col h-full items-center justify-center p-2 sm:p-4 max-w-5xl mx-auto">
+                    <!-- PENYESUAIAN: Ukuran Judul Dikurangi (text-2xl sm:text-3xl) -->
+                    <h1 class="text-2xl sm:text-3xl mb-3 text-center glow-text font-bold text-white">SELAMAT DATANG DI RIVER'S CHAT</h1>
+                    <p class="text-sm sm:text-base text-center text-gray-400 mb-6">Akses ruang obrolan anonim. Masukkan nama panggilan dan ID ruangan Anda.</p>
                     
-                    ${state.error ? `<div class="bg-red-900 p-3 text-yellow-300 mb-6 border-red-700 border text-center text-lg rounded-lg w-full max-w-md">${state.error}</div>` : ''}
+                    ${state.error ? `<div class="bg-red-900 p-2 text-yellow-300 mb-4 border-red-700 border text-center text-sm rounded-lg w-full max-w-md">${state.error}</div>` : ''}
 
-                    <div class="w-full max-w-md p-4 sm:p-0">
+                    <div class="w-full max-w-md p-2 sm:p-0">
                         <div class="flex-grow">
-                            <div class="mb-4">
-                                <!-- PENYESUAIAN: Ukuran Label Dikurangi -->
-                                <label class="block mb-2 text-lg sm:text-xl text-white font-semibold">NAMA PANGGILAN (USER NAME):</label>
+                            <div class="mb-3">
+                                <!-- PENYESUAIAN: Ukuran Label Dikurangi (text-sm sm:text-base) -->
+                                <label class="block mb-1 text-sm sm:text-base text-white font-semibold">NAMA PANGGILAN (USER NAME):</label>
                                 <input type="text" id="guest-username" class="input-terminal w-full" placeholder="contoh : David91" value="${state.username}" onkeydown="if(event.key === 'Enter') handleUserJoin()">
                             </div>
-                            <div class="mb-8">
+                            <div class="mb-6">
                                 <!-- PENYESUAIAN: Ukuran Label Dikurangi -->
-                                <label class="block mb-2 text-lg sm:text-xl text-white font-semibold">ID RUANGAN (8 KARAKTER):</label>
+                                <label class="block mb-1 text-sm sm:text-base text-white font-semibold">ID RUANGAN (8 KARAKTER):</label>
                                 <input type="text" id="guest-invite-id" class="input-terminal w-full" placeholder="Masukkan ID undangan Host" onkeydown="if(event.key === 'Enter') handleUserJoin()">
                             </div>
                         </div>
                         
-                        <!-- PENYESUAIAN: Ukuran Tombol Dikurangi -->
-                        <button class="terminal-button w-full mb-6 py-4 text-lg sm:text-xl ${buttonClass}" onclick="handleUserJoin()" ${buttonDisabled ? 'disabled' : ''}>
+                        <!-- PENYESUAIAN: Ukuran Tombol Dikurangi (py-3 text-base sm:text-lg) -->
+                        <button class="terminal-button w-full mb-4 py-3 text-base sm:text-lg ${buttonClass}" onclick="handleUserJoin()" ${buttonDisabled ? 'disabled' : ''}>
                             <span class="text-white">&gt; [ **JOIN ROOM** ] &lt;</span>
                         </button>
                         
-                        <div class="flex items-center my-6">
+                        <div class="flex items-center my-4">
                             <div class="flex-grow border-t border-gray-700"></div>
-                            <span class="mx-4 text-base text-gray-500">ATAU</span>
+                            <span class="mx-4 text-xs text-gray-500">ATAU</span>
                             <div class="flex-grow border-t border-gray-700"></div>
                         </div>
                         
                         <!-- PENYESUAIAN: Ukuran Tombol Dikurangi -->
-                        <button class="terminal-button fb-button w-full py-3 text-lg sm:text-xl mt-6 ${buttonClass}" onclick="handleGoToFacebookLogin()" ${buttonDisabled ? 'disabled' : ''}>
+                        <button class="terminal-button fb-button w-full py-2 text-sm sm:text-base mt-4 ${buttonClass}" onclick="handleGoToFacebookLogin()" ${buttonDisabled ? 'disabled' : ''}>
                             LOGIN FACEBOOK
                         </button>
                         
                     </div>
 
-                    <div class="mt-8 flex flex-col items-center text-base sm:text-lg w-full max-w-md">
+                    <div class="mt-6 flex flex-col items-center text-xs sm:text-sm w-full max-w-md">
                          <p class="mb-1 text-gray-300">STATUS KONEKSI FIREBASE: ${connectionStatus}</p>
-                         <p class="text-sm text-gray-500">USER ID: <span class="font-mono">${userId || 'TIDAK TERIDENTIFIKASI'}</span></p>
-                        <button class="mt-2 text-sm underline text-gray-500 hover:text-red-300" onclick="runDiagnostic()">
+                         <p class="text-xs text-gray-500">USER ID: <span class="font-mono">${userId || 'TIDAK TERIDENTIFIKASI'}</span></p>
+                        <button class="mt-2 text-xs underline text-gray-500 hover:text-red-300" onclick="runDiagnostic()">
                             [ JALANKAN DIAGNOSTIK SISTEM ]
                         </button>
                     </div>
@@ -880,17 +880,18 @@
                 }
                 
                 // PERUBAHAN 1 (Pesan Sebelumnya): Menghilangkan tanda kurung siku [] dari nama pengirim (non-bot)
+                // KASUS INI HANYA MEMPERKECIL FONT NAMA PENGIRIM
                 const messageContent = isBot ? 
                     `<span class="text-gray-400 font-light">${msg.text}</span>` : 
                     `<!-- Nama Pengirim Dihapus jika Bot -->
-                       <span class="font-bold mr-1 text-xs sm:text-sm" ${senderColorStyle}>${isBot ? '' : senderName + ':'}</span> 
+                       <span class="font-bold mr-1 text-[0.8rem] sm:text-sm" ${senderColorStyle}>${isBot ? '' : senderName + ':'}</span> 
                        <span class="text-white">${msg.text}</span>`;
                 
                 // Jika bot, kita perlu menghilangkan nama pengirim ([SENDER]:) 
                 const messageBody = isBot ? 
                     `
                     <div class="flex flex-col w-full text-center">
-                        <div class="text-base sm:text-lg ${messageExtraClass}">
+                        <div class="text-sm sm:text-base ${messageExtraClass}">
                             ${messageContent}
                         </div>
                     </div>
@@ -914,31 +915,31 @@
             }).join('');
 
             // PENGATURAN ALIGNMENT BARU UNTUK USER DAN ID ROOM
-            const labelWidthClass = "min-w-[60px] sm:min-w-[70px]"; // Sedikit lebih ramping
+            const labelWidthClass = "min-w-[50px] sm:min-w-[60px]"; // Jauh lebih ramping
             const labelStyle = `${labelWidthClass} flex-shrink-0 text-blue-300 font-bold text-left`;
-            const colonStyle = "w-1 text-blue-300 font-bold mr-1 sm:mr-2 flex-shrink-0"; 
+            const colonStyle = "w-1 text-blue-300 font-bold mr-1 flex-shrink-0"; 
             const valueStyle = "truncate text-blue-300 font-bold";
-            const headerTextStyle = "header-font text-xs sm:text-sm uppercase"; // Sedikit lebih ramping
+            const headerTextStyle = "header-font text-[0.65rem] sm:text-xs uppercase"; // Sangat kecil untuk mobile
 
             return `
-                <!-- PENYESUAIAN: max-w-5xl mx-auto untuk membatasi lebar di desktop dan padding dikurangi -->
-                <div class="flex-grow flex flex-col h-full w-full p-2 sm:p-4 max-w-5xl mx-auto">
+                <!-- PENYESUAIAN: padding utama dikurangi (p-1 sm:p-2) -->
+                <div class="flex-grow flex flex-col h-full w-full p-1 sm:p-2 max-w-5xl mx-auto">
                     
                     <!-- HEADER BARU: MENGGUNAKAN GRID 3 KOLOM UNTUK CENTERING JAM -->
-                    <div class="grid grid-cols-3 items-start bg-gray-900/40 p-2 rounded-xl border border-primary-color/30 mb-3 sm:mb-4 flex-shrink-0">
+                    <div class="grid grid-cols-3 items-start bg-gray-900/40 p-1 sm:p-2 rounded-lg border border-primary-color/30 mb-2 sm:mb-3 flex-shrink-0">
                         
                         <!-- KOLOM 1 (KIRI): USERNAME & ID ROOM (ALIGNED) -->
-                        <div class="flex flex-col truncate mr-2 ${headerTextStyle} justify-self-start">
+                        <div class="flex flex-col truncate mr-1 ${headerTextStyle} justify-self-start">
                             
                             <!-- USERNAME LINE (Align Colon) -->
-                            <div class="flex items-start">
+                            <div class="flex items-start leading-none">
                                 <span class="${labelStyle}">USER</span>
                                 <span class="${colonStyle}">:</span>
                                 <span class="${valueStyle}">${state.username}</span>
                             </div>
 
                             <!-- ID ROOM LINE (Align Colon) -->
-                            <div class="flex items-start">
+                            <div class="flex items-start leading-none">
                                 <span class="${labelStyle}">ID ROOM</span>
                                 <span class="${colonStyle}">:</span>
                                 <span class="${valueStyle}">${state.roomId}</span>
@@ -946,13 +947,13 @@
                         </div>
 
                         <!-- KOLOM 2 (TENGAH): REAL-TIME CLOCK -->
-                        <div id="real-time-clock" class="header-font text-center place-self-center mx-2 p-1 px-3 bg-gray-900/60 rounded-lg border border-gray-800 shadow-inner">
+                        <div id="real-time-clock" class="header-font text-center place-self-center mx-1 p-0.5 bg-gray-900/60 rounded-md border border-gray-800 shadow-inner">
                             <!-- Jam akan dimuat di sini oleh JS -->
                         </div>
 
                         <!-- KOLOM 3 (KANAN): TOMBOL LOGOUT -->
                         <div class="justify-self-end">
-                            <button class="terminal-button text-xs sm:text-sm bg-red-700 hover:bg-red-800 shadow-red-500/50 px-2 py-1" 
+                            <button class="terminal-button text-[0.6rem] sm:text-xs bg-red-700 hover:bg-red-800 shadow-red-500/50 px-1.5 py-1" 
                                     onclick="handleLogout()" 
                                     ${state.isLoggingOut ? 'disabled' : ''}>
                                 LOGOUT
@@ -961,23 +962,23 @@
                     </div>
 
                     <!-- Notifikasi Error/Status (Jika ada) -->
-                    ${state.error ? `<div class="bg-yellow-900 p-3 text-yellow-300 mb-3 border-yellow-700 border text-center text-sm sm:text-base rounded-md flex-shrink-0">${state.error}</div>` : ''}
+                    ${state.error ? `<div class="bg-yellow-900 p-2 text-yellow-300 mb-2 border-yellow-700 border text-center text-xs sm:text-sm rounded-md flex-shrink-0">${state.error}</div>` : ''}
 
                     <!-- 2. SCROLLABLE MIDDLE SECTION -->
-                    <div class="flex flex-grow space-x-4 min-h-0">
+                    <div class="flex flex-grow space-x-2 min-h-0">
                         
                         <!-- KOLOM UTAMA: CHAT LOG WRAPPER -->
                         <div class="w-full flex flex-col h-full min-h-0 
-                                    p-2 sm:p-4 rounded-lg bg-gray-900/40 border border-[var(--primary-color)]/20">
+                                    p-1 sm:p-2 rounded-lg bg-gray-900/40 border border-[var(--primary-color)]/20">
                             
-                            <!-- PENYESUAIAN: Ukuran Judul Chat Log Dikurangi -->
-                            <h3 class="text-lg sm:text-xl text-blue-400 mb-3 font-semibold glow-text text-center flex-shrink-0 border-b border-[var(--primary-color)]/30 pb-1">
+                            <!-- PENYESUAIAN: Ukuran Judul Chat Log Dikurangi (text-sm sm:text-base) -->
+                            <h3 class="text-sm sm:text-base text-blue-400 mb-2 font-semibold glow-text text-center flex-shrink-0 border-b border-[var(--primary-color)]/30 pb-1">
                                 STATUS : TERMINAL TERENKRIPSI
                             </h3>
                             
                             <!-- CHAT LOG -->
                             <div id="chat-log" class="flex-grow overflow-y-auto chat-log-container p-0 sm:p-1 scrollbar-futuristic"> 
-                                <div class="text-gray-500 text-center mt-8 text-base sm:text-lg">
+                                <div class="text-gray-500 text-center mt-6 text-sm sm:text-base">
                                     ${messagesHtml.length > 0 ? messagesHtml : '*** KONEKSI TERENKRIPSI. MENUNGGU PESAN... ***'}
                                 </div>
                             </div>
@@ -985,8 +986,8 @@
                     </div>
 
                     <!-- 3. FOOTER (INPUT) -->
-                    <div class="flex flex-col mt-3 flex-shrink-0">
-                        <div class="flex space-x-2">
+                    <div class="flex flex-col mt-2 flex-shrink-0">
+                        <div class="flex space-x-1">
                             <input type="text" id="message-input" class="input-terminal flex-grow" placeholder="KETIK PESAN DI SINI..." onkeydown="if(event.key === 'Enter') handleSendMessage()" ${state.isLoggingOut ? 'disabled' : ''}>
                             <button class="terminal-button text-sm sm:text-base flex-shrink-0" onclick="handleSendMessage()" ${state.isLoggingOut ? 'disabled' : ''}>
                                 KIRIM &gt;
